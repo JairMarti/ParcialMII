@@ -82,8 +82,8 @@
                     android:layout_marginEnd="8dp"
                     android:layout_weight="1"
                     app:cardBackgroundColor="@color/surface_dark"
-                    app:cardCornerRadius="8dp"
-                    app:cardElevation="2dp">
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="0dp">
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -93,6 +93,8 @@
                         <ImageView
                             android:layout_width="24dp"
                             android:layout_height="24dp"
+                            android:background="@drawable/bg_pill_green_alpha"
+                            android:padding="4dp"
                             android:src="@android:drawable/ic_menu_myplaces"
                             app:tint="@color/accent_green"
                             android:contentDescription="Total Tables" />
@@ -124,8 +126,8 @@
                     android:layout_marginStart="8dp"
                     android:layout_weight="1"
                     app:cardBackgroundColor="@color/surface_dark"
-                    app:cardCornerRadius="8dp"
-                    app:cardElevation="2dp">
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="0dp">
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -135,6 +137,8 @@
                         <ImageView
                             android:layout_width="24dp"
                             android:layout_height="24dp"
+                            android:background="@drawable/bg_pill_green_alpha"
+                            android:padding="4dp"
                             android:src="@android:drawable/ic_menu_myplaces"
                             app:tint="@color/accent_green"
                             android:contentDescription="Available Tables" />
@@ -229,15 +233,17 @@
                 </com.google.android.material.chip.ChipGroup>
             </HorizontalScrollView>
 
-            <!-- Table Container -->
-            <LinearLayout
-                android:id="@+id/ll_tables_container"
+            <!-- Table Container (Grid) -->
+            <GridLayout
+                android:id="@+id/gl_tables_container"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:orientation="vertical">
+                android:columnCount="2"
+                android:alignmentMode="alignMargins"
+                android:columnOrderPreserved="false">
                 <!-- Table items will be added here dynamically -->
-            </LinearLayout>
+            </GridLayout>
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>

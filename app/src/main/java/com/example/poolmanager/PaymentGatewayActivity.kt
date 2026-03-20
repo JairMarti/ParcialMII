@@ -30,18 +30,22 @@ class PaymentGatewayActivity : AppCompatActivity() {
         val tableName = table?.name ?: "Mesa $tableId"
 
         // Update UI components
-        findViewById<TextView>(R.id.tv_payment_table_name_header).text = tableName
-        findViewById<TextView>(R.id.tv_payment_time).text = timePlayed
-        findViewById<TextView>(R.id.tv_payment_total_amount).text = format.format(totalAmount)
+        findViewById<TextView>(R.id.tv_payment_table_name_header)?.text = tableName
+        findViewById<TextView>(R.id.tv_payment_time)?.text = timePlayed
+        findViewById<TextView>(R.id.tv_payment_total_amount)?.text = format.format(totalAmount)
         
-        // Calcular solo el valor del tiempo para el desglose (asumiendo 2000/min)
+        // Calcular el valor del tiempo para el desglose (2000 por cada bloque de 30 min)
         val timeParts = timePlayed.split(":")
         if (timeParts.size == 3) {
             val h = timeParts[0].toInt()
             val m = timeParts[1].toInt()
-            val totalMin = (h * 60) + m + 1
-            val timeValue = totalMin * 2000.0
-            findViewById<TextView>(R.id.tv_payment_rate_total).text = format.format(timeValue)
+            val totalSeconds = (h * 3600) + (m * 60)
+            
+            // Lógica: 2000 inicial + 2000 por cada 30 min completados
+            val additionalBlocks = totalSeconds / 1800
+            val timeValue = 2000.0 + (additionalBlocks * 2000.0)
+            
+            findViewById<TextView>(R.id.tv_payment_rate_total)?.text = format.format(timeValue)
         }
 
         findViewById<ImageView>(R.id.btn_back_payment)?.setOnClickListener {

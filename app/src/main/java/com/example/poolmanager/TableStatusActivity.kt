@@ -14,7 +14,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 class TableStatusActivity : AppCompatActivity() {
     private lateinit var tablesList: MutableList<Table>
     private lateinit var tableManager: TableManager
-    private lateinit var container: LinearLayout
+    private lateinit var container: GridLayout
     private lateinit var tvTotal: TextView
     private lateinit var tvAvailable: TextView
     private var currentFilter: String = "Todas"
@@ -26,7 +26,7 @@ class TableStatusActivity : AppCompatActivity() {
         tableManager = TableManager(this)
         tablesList = tableManager.getTables()
         
-        container = findViewById(R.id.ll_tables_container)
+        container = findViewById(R.id.gl_tables_container)
         tvTotal = findViewById(R.id.tv_total_tables_count)
         tvAvailable = findViewById(R.id.tv_available_tables_count)
 
@@ -62,43 +62,56 @@ class TableStatusActivity : AppCompatActivity() {
             tablesList.filter { it.status == currentFilter }
         }
 
-        // Count all available regardless of filter for the summary card
         availableCount = tablesList.count { it.status == "Disponible" }
         
         for (table in filteredList) {
             val card = layoutInflater.inflate(R.layout.item_table_card, container, false)
+            
+            // Set layout params for GridLayout
+            val params = GridLayout.LayoutParams()
+            params.width = 0
+            params.height = GridLayout.LayoutParams.WRAP_CONTENT
+            params.columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f)
+            card.layoutParams = params
+
             val tvName = card.findViewById<TextView>(R.id.tv_item_table_name)
             val tvStatus = card.findViewById<TextView>(R.id.tv_item_table_status)
             val btnAction = card.findViewById<Button>(R.id.btn_item_table_action)
+            val ivTable = card.findViewById<ImageView>(R.id.iv_item_table_image)
             
             tvName.text = table.name
             tvStatus.text = table.status
             
+            // Set the pool table image
+            // Note: Make sure the image is named img_pool_table in drawable folder
+            val resId = resources.getIdentifier("img_pool_table", "drawable", packageName)
+            if (resId != 0) {
+                ivTable.setImageResource(resId)
+            }
+
             when (table.status) {
                 "Ocupada" -> {
-                    tvStatus.setTextColor(Color.parseColor("#F57C00"))
+                    tvStatus.setTextColor(Color.parseColor("#FF5252")) // Red/Orange for occupied
                     tvStatus.setBackgroundResource(R.drawable.bg_pill_white_alpha)
-                    btnAction.text = "Gestionar"
-                    btnAction.setBackgroundColor(Color.LTGRAY)
-                    btnAction.setOnClickListener {
-                        openManagement(table)
-                    }
+                    tvStatus.text = "Ocupada"
+                    btnAction.text = "En Uso"
+                    btnAction.setBackgroundColor(Color.parseColor("#333333"))
+                    btnAction.setTextColor(Color.WHITE)
+                    btnAction.setOnClickListener { openManagement(table) }
                 }
                 "Reservada" -> {
                     tvStatus.setTextColor(Color.parseColor("#2196F3"))
                     tvStatus.text = "Reservada"
-                    btnAction.text = "Activar Mesa"
+                    btnAction.text = "Activar"
                     btnAction.setBackgroundColor(Color.parseColor("#2196F3"))
-                    btnAction.setOnClickListener {
-                        activateReservedTable(table)
-                    }
+                    btnAction.setOnClickListener { activateReservedTable(table) }
                 }
                 else -> { // Disponible
                     tvStatus.setTextColor(Color.parseColor("#00C853"))
-                    btnAction.text = "Abrir / Reservar"
-                    btnAction.setOnClickListener {
-                        showOpenOrReserveDialog(table)
-                    }
+                    tvStatus.text = "Disponible"
+                    btnAction.text = "Reservar Mesa"
+                    btnAction.setBackgroundColor(Color.parseColor("#00C853"))
+                    btnAction.setOnClickListener { showOpenOrReserveDialog(table) }
                 }
             }
 
