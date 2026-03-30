@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "600034333852",
+    "project_id": "poolmanager-f475e",
+    "storage_bucket": "poolmanager-f475e.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:600034333852:android:07f50181ca744e46e50959",
+        "android_client_info": {
+          "package_name": "com.example.poolmanager"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAr6dtr5JkuzvcjblNACCidWYl_dxClTE8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

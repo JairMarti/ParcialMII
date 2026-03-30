@@ -8,10 +8,10 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="PLACEHOLDER" />
-                  <option name="mobileSdkAppId" value="" />
-                  <option name="projectId" value="" />
-                  <option name="projectNumber" value="" />
+                  <option name="appId" value="com.example.poolmanager" />
+                  <option name="mobileSdkAppId" value="1:600034333852:android:07f50181ca744e46e50959" />
+                  <option name="projectId" value="poolmanager-f475e" />
+                  <option name="projectNumber" value="600034333852" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />

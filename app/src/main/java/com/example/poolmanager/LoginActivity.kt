@@ -9,13 +9,22 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.google.firebase.Firebase
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.firestore
 
 class LoginActivity : AppCompatActivity() {
+
     private var isPasswordVisible = false
+    private lateinit var auth: FirebaseAuth
+
+    private val db = Firebase.firestore   // Firestore
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
+
+        auth = FirebaseAuth.getInstance()
 
         val etUsername = findViewById<EditText>(R.id.et_username)
         val etPassword = findViewById<EditText>(R.id.et_password)
@@ -25,47 +34,93 @@ class LoginActivity : AppCompatActivity() {
         val tvForgotPassword = findViewById<TextView>(R.id.tv_forgot_password)
         val tvRegister = findViewById<TextView>(R.id.tv_register)
 
+        // 📌 Punto 4
+        agregarDatosEjemplo()
+
+        // 📌 PUNTO 5 — LEER DATOS DE FIRESTORE
+        leerUsuarios()   // ← ESTA ES LA ÚNICA LÍNEA QUE SE AGREGA EN onCreate()
+
         // Mostrar/Ocultar contraseña
-        ivShowPassword?.setOnClickListener {
+        ivShowPassword.setOnClickListener {
             isPasswordVisible = !isPasswordVisible
             if (isPasswordVisible) {
-                etPassword?.inputType = InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
+                etPassword.inputType = InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
                 ivShowPassword.setImageResource(android.R.drawable.ic_menu_close_clear_cancel)
             } else {
-                etPassword?.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+                etPassword.inputType =
+                    InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
                 ivShowPassword.setImageResource(android.R.drawable.ic_menu_view)
             }
-            etPassword?.setSelection(etPassword.text.length)
+            etPassword.setSelection(etPassword.text.length)
         }
 
-        // Botón Login con credenciales admin/admin
-        btnLogin?.setOnClickListener {
-            val user = etUsername?.text.toString()
-            val pass = etPassword?.text.toString()
+        // 🔐 LOGIN
+        btnLogin.setOnClickListener {
+            val user = etUsername.text.toString().trim()
+            val pass = etPassword.text.toString().trim()
 
-            if (user == "admin" && pass == "admin") {
-                startActivity(Intent(this, DashboardActivity::class.java))
-                finish()
-            } else if (user.isEmpty() || pass.isEmpty()) {
+            if (user.isEmpty() || pass.isEmpty()) {
                 Toast.makeText(this, "Por favor, completa todos los campos", Toast.LENGTH_SHORT).show()
             } else {
-                Toast.makeText(this, "Usuario o contraseña incorrectos", Toast.LENGTH_SHORT).show()
+                auth.signInWithEmailAndPassword(user, pass)
+                    .addOnCompleteListener { task ->
+                        if (task.isSuccessful) {
+                            Toast.makeText(this, "Login exitoso", Toast.LENGTH_SHORT).show()
+                            startActivity(Intent(this, DashboardActivity::class.java))
+                            finish()
+                        } else {
+                            Toast.makeText(this, "Error: ${task.exception?.message}", Toast.LENGTH_LONG).show()
+                        }
+                    }
             }
         }
 
-        // Botón Google
-        btnGoogle?.setOnClickListener {
-            Toast.makeText(this, "Login con Google no disponible", Toast.LENGTH_SHORT).show()
+        btnGoogle.setOnClickListener {
+            Toast.makeText(this, "Login con Google próximamente", Toast.LENGTH_SHORT).show()
         }
 
-        // Olvidé contraseña
-        tvForgotPassword?.setOnClickListener {
+        tvForgotPassword.setOnClickListener {
             Toast.makeText(this, "Recuperar contraseña próximamente", Toast.LENGTH_SHORT).show()
         }
 
-        // Ir a Registro
-        tvRegister?.setOnClickListener {
+        tvRegister.setOnClickListener {
             startActivity(Intent(this, RegisterActivity::class.java))
         }
+    }
+
+    // -----------------------------------------
+    // 🔥 Punto 4 — Agregar datos a Firestore
+    // -----------------------------------------
+    private fun agregarDatosEjemplo() {
+        val user = hashMapOf(
+            "first" to "Ada",
+            "last" to "Lovelace",
+            "born" to 1815
+        )
+
+        db.collection("users")
+            .add(user)
+            .addOnSuccessListener { ref ->
+                Toast.makeText(this, "Documento creado: ${ref.id}", Toast.LENGTH_SHORT).show()
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(this, "Error Firestore: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+    // -----------------------------------------
+    // 🔥 PUNTO 5 — LEER DATOS DESDE FIRESTORE
+    // -----------------------------------------
+    private fun leerUsuarios() {
+        db.collection("users")
+            .get()
+            .addOnSuccessListener { result ->
+                for (doc in result) {
+                    Toast.makeText(this, "${doc.id}: ${doc.data}", Toast.LENGTH_SHORT).show()
+                }
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(this, "Error leyendo datos: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
     }
 }
