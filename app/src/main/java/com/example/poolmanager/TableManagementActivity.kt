@@ -1,6 +1,5 @@
 package com.example.poolmanager
 
-import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -8,13 +7,17 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import com.google.firebase.Firebase
+import com.google.firebase.firestore.firestore
 import java.text.NumberFormat
 import java.util.Locale
 
 class TableManagementActivity : AppCompatActivity() {
-    private lateinit var tableManager: TableManager
-    private var currentTable: Table? = null
+    private val db = Firebase.firestore
+    private var mesaId: String? = null
+    private var currentMesa: Mesa? = null
     
     private lateinit var tvTotalPrice: TextView
     private lateinit var tvTimer: TextView
@@ -22,66 +25,52 @@ class TableManagementActivity : AppCompatActivity() {
     private val handler = Handler(Looper.getMainLooper())
     private lateinit var runnable: Runnable
     
-    private var tableId: Int = 1
+    private var totalConsumo = 0.0
+    private val consumosList = mutableListOf<String>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_table_management)
 
-        tableManager = TableManager(this)
-        tableId = intent.getIntExtra("TABLE_ID", 1)
+        mesaId = intent.getStringExtra("TABLE_ID")
         
-        loadTableData()
-
         tvTotalPrice = findViewById(R.id.tv_total_price)
         tvTimer = findViewById(R.id.tv_timer)
-        
-        updatePriceDisplay()
-        startTimer()
 
-        findViewById<ImageView>(R.id.iv_back)?.setOnClickListener {
-            finish()
-        }
+        findViewById<ImageView>(R.id.iv_back).setOnClickListener { finish() }
 
-        findViewById<Button>(R.id.btn_add_beer)?.setOnClickListener {
-            addConsumption("Cerveza", 5000.0)
-        }
+        loadMesaData()
+        setupButtons()
+    }
 
-        findViewById<Button>(R.id.btn_add_water)?.setOnClickListener {
-            addConsumption("Agua", 3000.0)
-        }
-
-        findViewById<Button>(R.id.btn_add_snack)?.setOnClickListener {
-            addConsumption("Mecato", 4000.0)
-        }
-
-        findViewById<Button>(R.id.btn_finish_game)?.setOnClickListener {
-            val intent = Intent(this, PaymentGatewayActivity::class.java)
-            intent.putExtra("TOTAL_AMOUNT", currentTable?.currentTotal ?: 0.0)
-            intent.putExtra("CONSUMPTIONS", ArrayList(currentTable?.consumptions ?: mutableListOf()))
-            intent.putExtra("TIME", tvTimer.text.toString())
-            intent.putExtra("TABLE_ID", tableId)
-            startActivity(intent)
+    private fun loadMesaData() {
+        mesaId?.let { id ->
+            db.collection("mesas").document(id).get().addOnSuccessListener { doc ->
+                currentMesa = doc.toObject(Mesa::class.java)?.apply { this.id = doc.id }
+                findViewById<TextView>(R.id.tv_table_name).text = currentMesa?.nombre ?: "Mesa"
+                
+                if (currentMesa?.estado == "disponible") {
+                    updateMesaStatus("ocupada")
+                }
+                
+                startTimer()
+            }
         }
     }
 
-    private fun loadTableData() {
-        val tables = tableManager.getTables()
-        currentTable = tables.find { it.id == tableId }
-        
-        currentTable?.let { table ->
-            findViewById<TextView>(R.id.tv_table_name)?.text = table.name
-            
-            if (table.status != "Ocupada") {
-                table.status = "Ocupada"
-                table.startTime = System.currentTimeMillis()
-                table.currentTotal = 2000.0 // Cobro inicial por los primeros 30 min
-                table.consumptions = mutableListOf("Tiempo de juego (Bloque 30 min): $2.000")
-                tableManager.saveTables(tables)
-            }
-            
-            val now = System.currentTimeMillis()
-            seconds = ((now - table.startTime) / 1000).toInt()
+    private fun updateMesaStatus(nuevoEstado: String) {
+        mesaId?.let { id ->
+            db.collection("mesas").document(id).update("estado", nuevoEstado)
+        }
+    }
+
+    private fun setupButtons() {
+        findViewById<Button>(R.id.btn_add_beer).setOnClickListener { addConsumption("Cerveza", 5000.0) }
+        findViewById<Button>(R.id.btn_add_water).setOnClickListener { addConsumption("Agua", 3000.0) }
+        findViewById<Button>(R.id.btn_add_snack).setOnClickListener { addConsumption("Mecato", 4000.0) }
+
+        findViewById<Button>(R.id.btn_finish_game).setOnClickListener {
+            showFinishDialog()
         }
     }
 
@@ -94,54 +83,66 @@ class TableManagementActivity : AppCompatActivity() {
                 val secs = seconds % 60
                 tvTimer.text = String.format("%02d:%02d:%02d", hours, minutes, secs)
                 
-                // Cobro de 2000 COP cada 30 minutos (1800 segundos)
-                if (seconds > 0 && seconds % 1800 == 0) {
-                    addTimeCharge()
-                }
-                
+                updatePriceDisplay()
                 handler.postDelayed(this, 1000)
             }
         }
         handler.post(runnable)
     }
 
-    private fun addTimeCharge() {
-        currentTable?.let { table ->
-            table.currentTotal += 2000.0
-            saveCurrentState()
-            updatePriceDisplay()
-            Toast.makeText(this, "Nuevo bloque de 30 min cobrado", Toast.LENGTH_SHORT).show()
-        }
-    }
-
     private fun addConsumption(name: String, price: Double) {
-        currentTable?.let { table ->
-            table.currentTotal += price
-            val format = NumberFormat.getCurrencyInstance(Locale("es", "CO"))
-            table.consumptions.add("$name: ${format.format(price)}")
-            
-            saveCurrentState()
-            updatePriceDisplay()
-            Toast.makeText(this, "$name añadido", Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    private fun saveCurrentState() {
-        val tables = tableManager.getTables()
-        val index = tables.indexOfFirst { it.id == tableId }
-        if (index != -1 && currentTable != null) {
-            tables[index] = currentTable!!
-            tableManager.saveTables(tables)
-        }
+        totalConsumo += price
+        consumosList.add(name)
+        updatePriceDisplay()
+        Toast.makeText(this, "$name añadido", Toast.LENGTH_SHORT).show()
     }
 
     private fun updatePriceDisplay() {
+        val precioPorHora = currentMesa?.precio ?: 2000.0
+        val precioTiempo = (seconds.toDouble() / 3600.0) * precioPorHora
+        val total = precioTiempo + totalConsumo
+        
         val format = NumberFormat.getCurrencyInstance(Locale("es", "CO"))
-        tvTotalPrice.text = format.format(currentTable?.currentTotal ?: 0.0)
+        tvTotalPrice.text = format.format(total)
+    }
+
+    private fun showFinishDialog() {
+        val precioPorHora = currentMesa?.precio ?: 2000.0
+        val precioTiempo = (seconds.toDouble() / 3600.0) * precioPorHora
+        val total = precioTiempo + totalConsumo
+
+        AlertDialog.Builder(this)
+            .setTitle("Finalizar Juego")
+            .setMessage("Total a cobrar: ${NumberFormat.getCurrencyInstance(Locale("es", "CO")).format(total)}\n¿Deseas finalizar?")
+            .setPositiveButton("Sí, Cobrar y Finalizar") { _, _ ->
+                saveVenta(precioTiempo, totalConsumo, total)
+            }
+            .setNegativeButton("Cancelar", null)
+            .show()
+    }
+
+    private fun saveVenta(totalMesa: Double, totalConsumo: Double, totalVenta: Double) {
+        val venta = Venta(
+            mesaId = mesaId ?: "",
+            mesaNombre = currentMesa?.nombre ?: "Desconocida",
+            items = consumosList,
+            totalMesa = totalMesa,
+            totalConsumo = totalConsumo,
+            totalVenta = totalVenta,
+            tiempoJugado = tvTimer.text.toString()
+        )
+
+        db.collection("ventas").add(venta).addOnSuccessListener {
+            updateMesaStatus("disponible")
+            Toast.makeText(this, "Venta registrada con éxito", Toast.LENGTH_SHORT).show()
+            finish()
+        }.addOnFailureListener {
+            Toast.makeText(this, "Error al registrar venta", Toast.LENGTH_SHORT).show()
+        }
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        handler.removeCallbacks(runnable)
+        if (::runnable.isInitialized) handler.removeCallbacks(runnable)
     }
 }

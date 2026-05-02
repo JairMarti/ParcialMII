@@ -40,12 +40,13 @@ dependencies {
     implementation(libs.gson)
     implementation(libs.androidx.cardview)
 
-    // 🔥 Firebase BOM (controls versions automatically)
+    // 🔥 Firebase BOM
     implementation(platform(libs.firebase.bom))
 
-    // ✅ Firebase dependencies (KTX features are now merged into these main artifacts)
+    // ✅ Firebase dependencies
     implementation(libs.firebase.auth)
     implementation(libs.firebase.firestore)
+    implementation(libs.firebase.storage)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

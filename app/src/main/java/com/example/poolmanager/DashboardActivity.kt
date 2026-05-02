@@ -2,50 +2,70 @@ package com.example.poolmanager
 
 import android.content.Intent
 import android.os.Bundle
-import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.cardview.widget.CardView
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import java.text.NumberFormat
-import java.util.Locale
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
+import com.google.firebase.firestore.firestore
 
 class DashboardActivity : AppCompatActivity() {
-    private lateinit var tableManager: TableManager
+    private lateinit var userRole: String
+    private val db = Firebase.firestore
+    private val auth = Firebase.auth
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_dashboard)
 
-        tableManager = TableManager(this)
-
+        userRole = intent.getStringExtra("user_role") ?: "empleado"
+        
+        setupUI()
         setupBottomNavigation()
         setupQuickActions()
+        listenToTableStats()
     }
 
-    override fun onResume() {
-        super.onResume()
-        updateSummary()
-        updateActiveTables()
+    private fun setupUI() {
+        val tvWelcome = findViewById<TextView>(R.id.tv_welcome_name)
+        if (userRole == "admin") {
+            tvWelcome.text = "¡Bienvenido, Admin!"
+        } else {
+            tvWelcome.text = "¡Bienvenido, Empleado!"
+        }
+    }
+
+    private fun listenToTableStats() {
+        db.collection("mesas").addSnapshotListener { snapshot, e ->
+            if (e != null) return@addSnapshotListener
+            
+            if (snapshot != null) {
+                val tables = snapshot.toObjects(Mesa::class.java)
+                findViewById<TextView>(R.id.tv_total_mesas).text = tables.size.toString()
+                findViewById<TextView>(R.id.tv_count_available).text = tables.count { it.estado == "disponible" }.toString()
+                findViewById<TextView>(R.id.tv_count_occupied).text = tables.count { it.estado == "ocupada" }.toString()
+            }
+        }
     }
 
     private fun setupBottomNavigation() {
         val bottomNav = findViewById<BottomNavigationView>(R.id.bottom_navigation)
-        bottomNav?.selectedItemId = R.id.nav_home
-        bottomNav?.setOnItemSelectedListener { item ->
+        bottomNav.selectedItemId = R.id.nav_home
+        bottomNav.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.nav_home -> true
                 R.id.nav_tables -> {
-                    startActivity(Intent(this, TableStatusActivity::class.java))
+                    startActivity(Intent(this, TableStatusActivity::class.java).putExtra("user_role", userRole))
                     true
                 }
-                R.id.nav_sales, R.id.nav_stats -> {
-                    startActivity(Intent(this, StatsActivity::class.java))
+                R.id.nav_events -> {
+                    startActivity(Intent(this, CalendarActivity::class.java).putExtra("user_role", userRole))
                     true
                 }
                 R.id.nav_profile -> {
-                    startActivity(Intent(this, ProfileActivity::class.java))
+                    startActivity(Intent(this, ProfileActivity::class.java).putExtra("user_role", userRole))
                     true
                 }
                 else -> false
@@ -53,64 +73,21 @@ class DashboardActivity : AppCompatActivity() {
         }
     }
 
-    private fun updateSummary() {
-        val tables = tableManager.getTables()
-        val available = tables.count { it.status == "Disponible" }
-        val occupied = tables.count { it.status == "Ocupada" }
-
-        findViewById<TextView>(R.id.tv_count_available)?.text = available.toString()
-        findViewById<TextView>(R.id.tv_count_occupied)?.text = occupied.toString()
-    }
-
     private fun setupQuickActions() {
-        findViewById<LinearLayout>(R.id.action_new_table)?.setOnClickListener {
-            startActivity(Intent(this, TableStatusActivity::class.java))
+        findViewById<LinearLayout>(R.id.action_new_table).setOnClickListener {
+            startActivity(Intent(this, TableStatusActivity::class.java).putExtra("user_role", userRole))
         }
-        findViewById<LinearLayout>(R.id.action_history)?.setOnClickListener {
-            startActivity(Intent(this, StatsActivity::class.java))
-        }
-        findViewById<LinearLayout>(R.id.action_reports)?.setOnClickListener {
-            startActivity(Intent(this, StatsActivity::class.java))
-        }
-        findViewById<LinearLayout>(R.id.action_settings)?.setOnClickListener {
-            startActivity(Intent(this, ProfileActivity::class.java))
-        }
-        findViewById<TextView>(R.id.text_view_all)?.setOnClickListener {
-            startActivity(Intent(this, TableStatusActivity::class.java))
-        }
-    }
-
-    private fun updateActiveTables() {
-        val tables = tableManager.getTables()
-        val activeTables = tables.filter { it.status == "Ocupada" }
         
-        // Let's hide the static cards and show dynamic ones if needed, 
-        // but for now let's just make the existing ones work with real data
-        val card1 = findViewById<CardView>(R.id.card_active_table_1)
-        val card2 = findViewById<CardView>(R.id.card_active_table_2)
-
-        if (activeTables.isNotEmpty()) {
-            card1?.visibility = View.VISIBLE
-            card1?.setOnClickListener {
-                val intent = Intent(this, TableManagementActivity::class.java)
-                intent.putExtra("TABLE_ID", activeTables[0].id)
-                intent.putExtra("TABLE_NAME", activeTables[0].name)
-                startActivity(intent)
-            }
-        } else {
-            card1?.visibility = View.GONE
+        findViewById<LinearLayout>(R.id.action_events).setOnClickListener {
+            startActivity(Intent(this, CalendarActivity::class.java).putExtra("user_role", userRole))
         }
 
-        if (activeTables.size > 1) {
-            card2?.visibility = View.VISIBLE
-            card2?.setOnClickListener {
-                val intent = Intent(this, TableManagementActivity::class.java)
-                intent.putExtra("TABLE_ID", activeTables[1].id)
-                intent.putExtra("TABLE_NAME", activeTables[1].name)
-                startActivity(intent)
-            }
-        } else {
-            card2?.visibility = View.GONE
+        findViewById<LinearLayout>(R.id.action_reports).setOnClickListener {
+            startActivity(Intent(this, StatsActivity::class.java).putExtra("user_role", userRole))
+        }
+
+        findViewById<LinearLayout>(R.id.action_settings).setOnClickListener {
+            startActivity(Intent(this, ProfileActivity::class.java).putExtra("user_role", userRole))
         }
     }
 }

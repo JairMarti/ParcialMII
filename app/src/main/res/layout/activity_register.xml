@@ -91,7 +91,7 @@
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="24dp"
+            android:layout_marginBottom="16dp"
             android:hint="Contraseña"
             android:textColorHint="#88FFFFFF"
             app:boxStrokeColor="#BB86FC"
@@ -108,6 +108,43 @@
                 android:inputType="textPassword"
                 android:textColor="#FFFFFF" />
         </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Selección de Rol -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start"
+            android:layout_marginBottom="8dp"
+            android:text="Selecciona tu rol:"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp" />
+
+        <RadioGroup
+            android:id="@+id/rg_role"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp"
+            android:orientation="horizontal">
+
+            <RadioButton
+                android:id="@+id/rb_empleado"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:checked="true"
+                android:text="Empleado"
+                android:textColor="#FFFFFF"
+                android:buttonTint="#BB86FC"/>
+
+            <RadioButton
+                android:id="@+id/rb_admin"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Administrador"
+                android:textColor="#FFFFFF"
+                android:buttonTint="#BB86FC"/>
+        </RadioGroup>
 
         <!-- Botón de Registro -->
         <com.google.android.material.button.MaterialButton

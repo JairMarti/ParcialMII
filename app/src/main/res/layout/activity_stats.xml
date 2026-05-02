@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background_dark">
+    android:background="#0D0D1A">
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
@@ -13,8 +13,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="24dp">
+            android:padding="20dp">
 
+            <!-- Toolbar -->
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
@@ -23,34 +24,25 @@
                     android:layout_width="28dp"
                     android:layout_height="28dp"
                     android:src="@android:drawable/ic_menu_revert"
-                    app:tint="@color/white"
+                    app:tint="#FFFFFF"
                     android:clickable="true"
                     android:focusable="true" />
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerHorizontal="true"
-                    android:text="Reportes y Estadísticas"
-                    android:textColor="@color/white"
+                    android:text="Reporte de Ventas"
+                    android:textColor="#FFFFFF"
                     android:textSize="18sp"
                     android:textStyle="bold" />
             </RelativeLayout>
 
-            <!-- Reporte de Hoy -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="32dp"
-                android:text="Resumen de Hoy"
-                android:textColor="@color/white"
-                android:textSize="16sp"
-                android:textStyle="bold" />
-
+            <!-- Total General Card -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                app:cardBackgroundColor="@color/surface_dark"
+                android:layout_marginTop="24dp"
+                app:cardBackgroundColor="#1A1A2E"
                 app:cardCornerRadius="16dp">
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -60,57 +52,36 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Total Facturado"
-                        android:textColor="@color/text_hint"
+                        android:text="Ventas Totales (Hoy)"
+                        android:textColor="#BBBBBB"
                         android:textSize="14sp" />
                     <TextView
-                        android:id="@+id/tv_stats_daily_billing"
+                        android:id="@+id/tv_total_general"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="$ 0"
-                        android:textColor="@color/accent_green"
+                        android:textColor="#BB86FC"
                         android:textSize="32sp"
                         android:textStyle="bold" />
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
-            <!-- Historial de Facturación -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="32dp"
-                android:text="Historial de Ventas"
-                android:textColor="@color/white"
-                android:textSize="16sp"
+                android:text="Detalle por Mesa"
+                android:textColor="#FFFFFF"
+                android:textSize="18sp"
                 android:textStyle="bold" />
 
             <LinearLayout
-                android:id="@+id/ll_billing_history_container"
+                android:id="@+id/ll_ventas_container"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
                 android:orientation="vertical">
-                <!-- Se llenará dinámicamente -->
-            </LinearLayout>
-
-            <!-- Estadísticas de Uso -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="32dp"
-                android:text="Frecuencia de Uso por Mesa"
-                android:textColor="@color/white"
-                android:textSize="16sp"
-                android:textStyle="bold" />
-
-            <LinearLayout
-                android:id="@+id/ll_usage_container"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:orientation="vertical"
-                android:paddingBottom="40dp">
-                <!-- Se llenará dinámicamente -->
+                <!-- Se llenará con items de venta -->
             </LinearLayout>
 
         </LinearLayout>

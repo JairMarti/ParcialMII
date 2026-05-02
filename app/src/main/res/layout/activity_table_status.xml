@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background_dark">
+    android:background="#0D0D1A">
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
@@ -30,10 +30,9 @@
                     <ImageView
                         android:layout_width="32dp"
                         android:layout_height="32dp"
-                        android:background="@drawable/bg_rounded_green"
                         android:padding="6dp"
                         android:src="@android:drawable/ic_menu_help"
-                        app:tint="@color/white"
+                        app:tint="#BB86FC"
                         android:contentDescription="Icon" />
 
                     <LinearLayout
@@ -46,7 +45,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Pool Club"
-                            android:textColor="@color/white"
+                            android:textColor="#FFFFFF"
                             android:textSize="16sp"
                             android:textStyle="bold" />
 
@@ -54,19 +53,10 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Gestión de Mesas"
-                            android:textColor="@color/text_hint"
+                            android:textColor="#BBBBBB"
                             android:textSize="10sp" />
                     </LinearLayout>
                 </LinearLayout>
-
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:layout_alignParentEnd="true"
-                    android:layout_centerVertical="true"
-                    android:src="@android:drawable/ic_popup_reminder"
-                    app:tint="@color/white"
-                    android:contentDescription="Notifications" />
             </RelativeLayout>
 
             <!-- Summary Bar -->
@@ -81,27 +71,17 @@
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="8dp"
                     android:layout_weight="1"
-                    app:cardBackgroundColor="@color/surface_dark"
-                    app:cardCornerRadius="12dp"
-                    app:cardElevation="0dp">
+                    app:cardBackgroundColor="#1A1A2E"
+                    app:cardCornerRadius="12dp">
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:padding="12dp"
                         android:orientation="horizontal"
                         android:gravity="center_vertical">
-                        <ImageView
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
-                            android:background="@drawable/bg_pill_green_alpha"
-                            android:padding="4dp"
-                            android:src="@android:drawable/ic_menu_myplaces"
-                            app:tint="@color/accent_green"
-                            android:contentDescription="Total Tables" />
                         <LinearLayout
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginStart="8dp"
                             android:orientation="vertical">
                             <TextView
                                 android:id="@+id/tv_total_tables_count"
@@ -109,12 +89,12 @@
                                 android:layout_height="wrap_content"
                                 android:text="0"
                                 android:textStyle="bold"
-                                android:textColor="@color/white" />
+                                android:textColor="#FFFFFF" />
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="Total Mesas"
-                                android:textColor="@color/text_hint"
+                                android:textColor="#BBBBBB"
                                 android:textSize="10sp" />
                         </LinearLayout>
                     </LinearLayout>
@@ -125,27 +105,17 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
                     android:layout_weight="1"
-                    app:cardBackgroundColor="@color/surface_dark"
-                    app:cardCornerRadius="12dp"
-                    app:cardElevation="0dp">
+                    app:cardBackgroundColor="#1A1A2E"
+                    app:cardCornerRadius="12dp">
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:padding="12dp"
                         android:orientation="horizontal"
                         android:gravity="center_vertical">
-                        <ImageView
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
-                            android:background="@drawable/bg_pill_green_alpha"
-                            android:padding="4dp"
-                            android:src="@android:drawable/ic_menu_myplaces"
-                            app:tint="@color/accent_green"
-                            android:contentDescription="Available Tables" />
                         <LinearLayout
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginStart="8dp"
                             android:orientation="vertical">
                             <TextView
                                 android:id="@+id/tv_available_tables_count"
@@ -153,12 +123,46 @@
                                 android:layout_height="wrap_content"
                                 android:text="0"
                                 android:textStyle="bold"
-                                android:textColor="@color/white" />
+                                android:textColor="#4CAF50" />
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="Disponibles"
-                                android:textColor="@color/text_hint"
+                                android:textColor="#BBBBBB"
+                                android:textSize="10sp" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+
+                <androidx.cardview.widget.CardView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_weight="1"
+                    app:cardBackgroundColor="#1A1A2E"
+                    app:cardCornerRadius="12dp">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:padding="12dp"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical">
+                            <TextView
+                                android:id="@+id/tv_occupied_tables_count"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="0"
+                                android:textStyle="bold"
+                                android:textColor="#F44336" />
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Ocupadas"
+                                android:textColor="#BBBBBB"
                                 android:textSize="10sp" />
                         </LinearLayout>
                     </LinearLayout>
@@ -166,84 +170,23 @@
 
             </LinearLayout>
 
-            <RelativeLayout
-                android:layout_width="match_parent"
+            <TextView
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="24dp">
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Estado de Mesas"
-                    android:textColor="@color/white"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentEnd="true"
-                    android:text="Filtros"
-                    android:textColor="@color/text_hint"
-                    android:textSize="12sp" />
-            </RelativeLayout>
+                android:layout_marginTop="24dp"
+                android:text="Estado de Mesas"
+                android:textColor="#FFFFFF"
+                android:textSize="18sp"
+                android:textStyle="bold" />
 
-            <HorizontalScrollView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:scrollbars="none">
-                <com.google.android.material.chip.ChipGroup
-                    android:id="@+id/chip_group_filters"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    app:singleSelection="true"
-                    app:selectionRequired="true">
-                    <com.google.android.material.chip.Chip
-                        android:id="@+id/chip_filter_all"
-                        style="@style/Widget.MaterialComponents.Chip.Choice"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Todas"
-                        android:textColor="@color/white"
-                        app:chipBackgroundColor="@color/surface_dark"
-                        android:checked="true" />
-                    <com.google.android.material.chip.Chip
-                        android:id="@+id/chip_filter_available"
-                        style="@style/Widget.MaterialComponents.Chip.Choice"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Disponibles"
-                        android:textColor="@color/white"
-                        app:chipBackgroundColor="@color/surface_dark" />
-                    <com.google.android.material.chip.Chip
-                        android:id="@+id/chip_filter_occupied"
-                        style="@style/Widget.MaterialComponents.Chip.Choice"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Ocupadas"
-                        android:textColor="@color/white"
-                        app:chipBackgroundColor="@color/surface_dark" />
-                    <com.google.android.material.chip.Chip
-                        android:id="@+id/chip_filter_reserved"
-                        style="@style/Widget.MaterialComponents.Chip.Choice"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Reservadas"
-                        android:textColor="@color/white"
-                        app:chipBackgroundColor="@color/surface_dark" />
-                </com.google.android.material.chip.ChipGroup>
-            </HorizontalScrollView>
-
-            <!-- Table Container (Grid) -->
-            <GridLayout
-                android:id="@+id/gl_tables_container"
+            <!-- Table RecyclerView -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_tables"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:columnCount="2"
-                android:alignmentMode="alignMargins"
-                android:columnOrderPreserved="false">
-                <!-- Table items will be added here dynamically -->
-            </GridLayout>
+                app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+                app:spanCount="2" />
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
@@ -256,18 +199,19 @@
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="80dp"
         android:src="@android:drawable/ic_input_add"
-        app:tint="@color/white"
-        android:backgroundTint="@color/accent_green"
-        android:contentDescription="Add Table" />
+        app:tint="#0D0D1A"
+        android:backgroundTint="#BB86FC"
+        android:contentDescription="Add Table"
+        android:visibility="gone" />
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_navigation"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        android:background="@color/surface_dark"
-        app:itemIconTint="@color/accent_green"
-        app:itemTextColor="@color/accent_green"
+        android:background="#1A1A2E"
+        app:itemIconTint="#BB86FC"
+        app:itemTextColor="#BB86FC"
         app:menu="@menu/bottom_nav_menu" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

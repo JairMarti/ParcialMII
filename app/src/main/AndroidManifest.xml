@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- 🔥 ESTA LÍNEA ES LA CLAVE -->
     <uses-permission android:name="android.permission.INTERNET"/>
 
     <application
@@ -31,6 +29,8 @@
         <activity android:name=".PaymentGatewayActivity" />
         <activity android:name=".ProfileActivity" />
         <activity android:name=".StatsActivity" />
+        <activity android:name=".CalendarActivity" />
+        <activity android:name=".InventoryActivity" />
 
     </application>
 

@@ -1,109 +1,141 @@
 package com.example.poolmanager
 
 import android.os.Bundle
-import android.view.Gravity
 import android.view.View
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.cardview.widget.CardView
+import com.google.firebase.Firebase
+import com.google.firebase.firestore.Query
+import com.google.firebase.firestore.firestore
 import java.text.NumberFormat
-import java.text.SimpleDateFormat
-import java.util.Date
+import java.util.Calendar
 import java.util.Locale
 
 class StatsActivity : AppCompatActivity() {
-    private lateinit var tableManager: TableManager
+    private val db = Firebase.firestore
+    private lateinit var llVentasContainer: LinearLayout
+    private lateinit var tvTotalGeneral: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_stats)
 
-        tableManager = TableManager(this)
+        llVentasContainer = findViewById(R.id.ll_ventas_container)
+        tvTotalGeneral = findViewById(R.id.tv_total_general)
 
-        findViewById<ImageView>(R.id.iv_back)?.setOnClickListener {
+        findViewById<ImageView>(R.id.iv_back).setOnClickListener {
             finish()
         }
 
-        displayDailyReport()
-        displayBillingHistory()
-        displayTableUsageStatistics()
+        loadDailySales()
     }
 
-    private fun displayDailyReport() {
-        val today = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
-        val dailyBilling = tableManager.getDailyBilling(today)
-        val format = NumberFormat.getCurrencyInstance(Locale("es", "CO"))
-        findViewById<TextView>(R.id.tv_stats_daily_billing).text = format.format(dailyBilling)
+    private fun loadDailySales() {
+        val calendar = Calendar.getInstance()
+        calendar.set(Calendar.HOUR_OF_DAY, 0)
+        calendar.set(Calendar.MINUTE, 0)
+        calendar.set(Calendar.SECOND, 0)
+        val startOfDay = calendar.time
+
+        db.collection("ventas")
+            .whereGreaterThanOrEqualTo("fecha", startOfDay)
+            .orderBy("fecha", Query.Direction.DESCENDING)
+            .addSnapshotListener { snapshot, e ->
+                if (e != null) {
+                    Toast.makeText(this, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+                    return@addSnapshotListener
+                }
+
+                if (snapshot != null) {
+                    val ventas = snapshot.toObjects(Venta::class.java)
+                    displayVentas(ventas)
+                }
+            }
     }
 
-    private fun displayBillingHistory() {
-        val container = findViewById<LinearLayout>(R.id.ll_billing_history_container)
-        container.removeAllViews()
-
-        val history = tableManager.getAllBillingHistory()
+    private fun displayVentas(ventas: List<Venta>) {
+        llVentasContainer.removeAllViews()
+        var totalGeneral = 0.0
         val format = NumberFormat.getCurrencyInstance(Locale("es", "CO"))
 
-        if (history.isEmpty()) {
+        if (ventas.isEmpty()) {
             val tvEmpty = TextView(this)
-            tvEmpty.text = "No hay registros anteriores."
-            tvEmpty.setTextColor(getColor(R.color.text_hint))
-            container.addView(tvEmpty)
+            tvEmpty.text = "No hay ventas registradas hoy."
+            tvEmpty.setTextColor(android.graphics.Color.GRAY)
+            tvEmpty.textAlignment = View.TEXT_ALIGNMENT_CENTER
+            llVentasContainer.addView(tvEmpty)
+            tvTotalGeneral.text = format.format(0.0)
             return
         }
 
-        for (record in history) {
-            val layout = LinearLayout(this)
-            layout.orientation = LinearLayout.HORIZONTAL
-            layout.setPadding(0, 16, 0, 16)
+        for (venta in ventas) {
+            totalGeneral += venta.totalVenta
 
-            val tvDate = TextView(this)
-            tvDate.text = record.first
-            tvDate.setTextColor(getColor(R.color.white))
-            tvDate.layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+            val card = CardView(this).apply {
+                layoutParams = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+                ).apply {
+                    setMargins(0, 0, 0, 16)
+                }
+                setCardBackgroundColor(android.graphics.Color.parseColor("#1A1A2E"))
+                radius = 16f
+                elevation = 4f
+            }
 
-            val tvAmount = TextView(this)
-            tvAmount.text = format.format(record.second)
-            tvAmount.setTextColor(getColor(R.color.accent_blue))
-            tvAmount.gravity = Gravity.END
+            val layout = LinearLayout(this).apply {
+                orientation = LinearLayout.VERTICAL
+                setPadding(16, 16, 16, 16)
+            }
 
-            layout.addView(tvDate)
-            layout.addView(tvAmount)
-            container.addView(layout)
+            // Nombre Mesa y Total
+            val header = LinearLayout(this).apply {
+                orientation = LinearLayout.HORIZONTAL
+            }
+            val tvMesa = TextView(this).apply {
+                text = venta.mesaNombre
+                setTextColor(android.graphics.Color.WHITE)
+                textSize = 16f
+                setTypeface(null, android.graphics.Typeface.BOLD)
+                layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+            }
+            val tvTotalVenta = TextView(this).apply {
+                text = format.format(venta.totalVenta)
+                setTextColor(android.graphics.Color.parseColor("#BB86FC"))
+                textSize = 16f
+                setTypeface(null, android.graphics.Typeface.BOLD)
+            }
+            header.addView(tvMesa)
+            header.addView(tvTotalVenta)
 
-            // Línea divisoria
-            val divider = View(this)
-            divider.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 1)
-            divider.setBackgroundColor(getColor(R.color.divider_color))
-            container.addView(divider)
+            // Detalle de Items
+            val tvDetalle = TextView(this).apply {
+                val itemsStr = if (venta.items.isNotEmpty()) venta.items.joinToString(", ") else "Sin consumos"
+                text = "Items: $itemsStr\nTiempo: ${venta.tiempoJugado}"
+                setTextColor(android.graphics.Color.parseColor("#BBBBBB"))
+                textSize = 12f
+                setPadding(0, 8, 0, 0)
+            }
+
+            // Desglose
+            val tvDesglose = TextView(this).apply {
+                text = "Mesa: ${format.format(venta.totalMesa)} | Consumo: ${format.format(venta.totalConsumo)}"
+                setTextColor(android.graphics.Color.parseColor("#BBBBBB"))
+                textSize = 10f
+                setPadding(0, 4, 0, 0)
+            }
+
+            layout.addView(header)
+            layout.addView(tvDetalle)
+            layout.addView(tvDesglose)
+            card.addView(layout)
+            llVentasContainer.addView(card)
         }
-    }
 
-    private fun displayTableUsageStatistics() {
-        val container = findViewById<LinearLayout>(R.id.ll_usage_container)
-        container.removeAllViews()
-
-        val tables = tableManager.getTables()
-        for (table in tables) {
-            val usageCount = tableManager.getTableUsage(table.name)
-            
-            val layout = LinearLayout(this)
-            layout.orientation = LinearLayout.HORIZONTAL
-            layout.setPadding(0, 16, 0, 16)
-
-            val tvName = TextView(this)
-            tvName.text = table.name
-            tvName.setTextColor(getColor(R.color.white))
-            tvName.layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
-
-            val tvCount = TextView(this)
-            tvCount.text = "$usageCount veces"
-            tvCount.setTextColor(getColor(R.color.accent_green))
-            tvCount.gravity = Gravity.END
-
-            layout.addView(tvName)
-            layout.addView(tvCount)
-            container.addView(layout)
-        }
+        tvTotalGeneral.text = format.format(totalGeneral)
     }
 }

@@ -14,4 +14,9 @@
         <item name="android:windowBackground">@color/background_dark</item>
         <!-- Customize your theme here. -->
     </style>
+
+    <style name="ShapeAppearanceOverlay.MaterialComponents.Circle" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">50%</item>
+    </style>
 </resources>
